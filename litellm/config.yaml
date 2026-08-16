@@ -1,0 +1,35 @@
+# LiteLLM proxy config — optional "full mode" gateway in front of vLLM.
+#
+# The Gradio app talks to vLLM directly by default (lite mode). This file is
+# only used when you run the docker-compose "full mode" stack or a standalone
+# LiteLLM proxy, and lets you add model aliases / profiles / fallbacks without
+# touching the serving repo.
+#
+# Values use LiteLLM's `os.environ/...` syntax so the same file works in Docker
+# and standalone. Point VLLM_BASE_URL at the OpenAI-compatible backend and set
+# VLLM_API_KEY (may be empty).
+
+model_list:
+  - model_name: deepseek-v4-flash
+    litellm_params:
+      model: openai/deepseek-v4-flash
+      api_base: os.environ/VLLM_BASE_URL
+      api_key: os.environ/VLLM_API_KEY
+      max_tokens: 8192
+      stream_timeout: 600
+
+  # Example alias: same backend, tightened budget for a "fast" chat profile.
+  - model_name: deepseek-v4-flash-fast
+    litellm_params:
+      model: openai/deepseek-v4-flash
+      api_base: os.environ/VLLM_BASE_URL
+      api_key: os.environ/VLLM_API_KEY
+      max_tokens: 2048
+      stream_timeout: 600
+
+litellm_settings:
+  drop_params: true
+  num_retries: 1
+
+router_settings:
+  routing_strategy: simple-shuffle

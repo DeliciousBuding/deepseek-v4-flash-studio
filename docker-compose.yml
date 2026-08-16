@@ -1,0 +1,34 @@
+# "Full mode" self-host stack: Open WebUI -> LiteLLM -> (external vLLM).
+#
+# This is optional. The default "lite mode" is just `python app.py` (Gradio),
+# which is what ModelScope Studio uses. The full mode is for running the richer
+# Open WebUI experience against the same OpenAI-compatible backend.
+#
+# The vLLM backend is intentionally NOT containerized here — it runs natively
+# (see the sibling repo `deepseek-v4-flash-mi308x`). Point VLLM_BASE_URL at it
+# from the host, e.g. http://host.docker.internal:8000 on Docker Desktop.
+
+services:
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    volumes:
+      - ./litellm/config.yaml:/app/config.yaml:ro
+    environment:
+      VLLM_BASE_URL: ${VLLM_BASE_URL:-http://host.docker.internal:8000}
+      VLLM_API_KEY: ${VLLM_API_KEY:-}
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-studio}
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    ports:
+      - "4000:4000"
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    environment:
+      OPENAI_API_BASE_URL: http://litellm:4000/v1
+      OPENAI_API_KEY: ${LITELLM_MASTER_KEY:-sk-studio}
+      WEBUI_AUTH: "false"
+      DEFAULT_MODELS: deepseek-v4-flash
+    ports:
+      - "3000:8080"
+    depends_on:
+      - litellm
