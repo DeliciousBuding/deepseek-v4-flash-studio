@@ -19,6 +19,10 @@ env/
 *.pem
 *.p12
 *.pfx
+id_rsa*
+id_ed25519*
+authorized_keys
+known_hosts
 secrets/
 .bootstrap/
 
