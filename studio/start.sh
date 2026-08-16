@@ -6,7 +6,8 @@
 # documents the exact launch path.
 set -euo pipefail
 
-cd "$(dirname "${BASH_SOURCE[0]}")/.."
+PROJECT_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$PROJECT_ROOT"
 
 if command -v python3 >/dev/null 2>&1; then
   PYTHON_BIN="python3"
@@ -15,6 +16,13 @@ elif command -v python >/dev/null 2>&1; then
 else
   echo "ERROR: Python is not available" >&2
   exit 1
+fi
+
+if [ -r "$PROJECT_ROOT/.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . "$PROJECT_ROOT/.env"
+  set +a
 fi
 
 "$PYTHON_BIN" -m pip install --disable-pip-version-check -q -r requirements.txt

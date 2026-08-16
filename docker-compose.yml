@@ -1,12 +1,5 @@
-# "Full mode" self-host stack: Open WebUI -> LiteLLM -> (external vLLM).
-#
-# This is optional. The default "lite mode" is just `python app.py` (Gradio),
-# which is what ModelScope Studio uses. The full mode is for running the richer
-# Open WebUI experience against the same OpenAI-compatible backend.
-#
-# The vLLM backend is intentionally NOT containerized here — it runs natively
-# (see the sibling repo `deepseek-v4-flash-mi308x`). Point VLLM_BASE_URL at it
-# from the host, e.g. http://host.docker.internal:8000 on Docker Desktop.
+# LiteLLM standardizes an external vLLM backend as an OpenAI-compatible gateway.
+# The vLLM backend remains native and is not duplicated in this Compose project.
 
 services:
   litellm:
@@ -15,7 +8,7 @@ services:
     volumes:
       - ./litellm/config.yaml:/app/config.yaml:ro
     environment:
-      VLLM_BASE_URL: ${VLLM_BASE_URL:-http://host.docker.internal:8000}
+      VLLM_BASE_URL: ${VLLM_BASE_URL:-http://host.docker.internal:8000/v1}
       VLLM_API_KEY: ${VLLM_API_KEY:-}
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY in .env}
     command: ["--config", "/app/config.yaml", "--port", "4000"]
@@ -23,21 +16,3 @@ services:
       - "127.0.0.1:4000:4000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:main
-    restart: unless-stopped
-    environment:
-      OPENAI_API_BASE_URL: http://litellm:4000/v1
-      OPENAI_API_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY in .env}
-      WEBUI_AUTH: ${WEBUI_AUTH:-true}
-      DEFAULT_MODELS: deepseek-v4-flash
-    ports:
-      - "127.0.0.1:3000:8080"
-    volumes:
-      - open-webui-data:/app/backend/data
-    depends_on:
-      - litellm
-
-volumes:
-  open-webui-data:

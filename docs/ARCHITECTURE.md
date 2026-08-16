@@ -13,9 +13,8 @@ re-implementing or containerizing the serving stack.
 │                                             │
 │  app.py         minimal process entry point │
 │  deepseek_lab/  config, API client, UI      │
-│  litellm/       optional gateway (full mode)│
-│  open-webui/    optional rich chat UX       │
-│  docker-compose optional full-mode stack    │
+│  litellm/       OpenAI gateway configuration│
+│  docker-compose optional gateway container  │
 └──────────────────┬──────────────────────────┘
                    │  OpenAI-compatible /v1
                    ▼
@@ -28,17 +27,18 @@ re-implementing or containerizing the serving stack.
 
 ## Design decisions
 
-1. **Lite mode is the default and the fallback.** The Gradio app depends only on
-   `gradio` + `httpx`, so it runs in ModelScope Studio with minimal surface area
-   for dependency or startup failures. Open WebUI + LiteLLM are opt-in.
+1. **One UI and one gateway.** The Gradio app depends only on `gradio` + `httpx`.
+   LiteLLM standardizes authentication and the OpenAI-compatible API without
+   adding another user interface or duplicating the inference service.
 
 2. **Raw HTTP, not an SDK.** The app streams SSE from the OpenAI-compatible
    endpoint with `httpx` rather than pulling in the `openai` SDK, avoiding
    version drift against the backend and keeping the dependency list tiny.
 
 3. **Everything is environment-driven.** The same `app.py` runs against a local
-   vLLM, a ModelScope Studio backend, or a LiteLLM gateway — only
-   `VLLM_BASE_URL` / `VLLM_API_KEY` / `MODEL_NAME` change.
+   or remote OpenAI-compatible gateway using `OPENAI_BASE_URL`,
+   `OPENAI_API_KEY`, and `MODEL_NAME`. The former `VLLM_*` variables remain
+   backward-compatible aliases for direct backend diagnostics.
 
 4. **No secrets, no bootstrap.** This repo never generates, stores, or commits
    API keys, model weights, or instance-specific connection details.
@@ -48,10 +48,10 @@ re-implementing or containerizing the serving stack.
    assistant content, so presentation HTML and hidden reasoning are never
    replayed into later prompts.
 
-6. **Long probes are bounded.** The app calibrates a small fixture with vLLM's
-   `/tokenize` endpoint, reserves output/template headroom, and caps the largest
-   UI option at 475K for a 524,288-token backend. If tokenization is unavailable,
-   a deliberately conservative fallback undershoots rather than overflows.
+6. **Long probes are bounded.** The app calibrates a small fixture with the
+   gateway's `/tokenize` pass-through, reserves output/template headroom, and
+   caps the largest UI option at 475K for a 524,288-token backend. If the route
+   is unavailable, a conservative fallback undershoots rather than overflows.
 
 ## The "lab" surface
 
@@ -65,11 +65,9 @@ The UI is deliberately more than a chatbot wrapper. It exposes:
   as an engine-only prefill benchmark.
 - **API reference** so the OpenAI-compatible surface is documented in-product.
 
-## Full mode (optional)
+## LiteLLM gateway
 
-`docker-compose.yml` runs Open WebUI → LiteLLM → the same backend. LiteLLM is
-configured with its `hosted_vllm/` provider, model aliases, and
-`os.environ/...` values, so adding model profiles or fallbacks does not require
-forking either upstream project. The default Compose ports bind to loopback,
-Open WebUI authentication remains enabled, and the LiteLLM master key has no
-repository default.
+`docker-compose.yml` runs only LiteLLM in front of the native backend. LiteLLM
+uses its `hosted_vllm/` provider and environment-backed credentials, so model
+aliases or fallbacks do not require forking either upstream project. The
+Compose port binds to loopback and the master key has no repository default.

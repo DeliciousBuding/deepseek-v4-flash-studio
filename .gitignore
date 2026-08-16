@@ -1,43 +1,44 @@
-# Python
+# Python cache, environments, and test output
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*.egg-info/
+.coverage
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 .venv/
+.test-venv/
 venv/
+env/
 
-# Model weights (large, downloaded at runtime — never committed)
-*.safetensors
-*.gguf
-*.pt
-*.ckpt
-*.bin
-*.whl
-models/
-
-# Generated artifacts
-*.log
-*.mp4
-outputs/
-out/
-
-# Secrets / local state
-.bootstrap/
-keys/
-*.key
-*.pem
-id_rsa*
-id_ed25519*
-authorized_keys
-known_hosts
-tailscaled.state
+# Local configuration and credentials
 .env
 .env.*
 !.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+.bootstrap/
 
-# System
+# Model files and generated application data
+*.bin
+*.ckpt
+*.gguf
+*.pt
+*.safetensors
+*.whl
+models/
+outputs/
+out/
+tmp/
+*.log
+*.mp4
+
+# IDE, operating system, and local tooling
 .DS_Store
 Thumbs.db
-
-# Editor
 .vscode/
 .idea/
+.python-version

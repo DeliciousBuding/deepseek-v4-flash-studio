@@ -4,7 +4,7 @@
 
 **"MI308X DeepSeek Lab" — the presentation layer for DeepSeek-V4-Flash-0731 on a single AMD Instinct MI308X.**
 
-A thin Gradio UI + optional LiteLLM/Open WebUI gateway over the OpenAI-compatible vLLM endpoint. Long-context probe · reasoning display · client-observed TTFT/throughput panel.
+A thin Gradio UI and LiteLLM gateway over the OpenAI-compatible vLLM endpoint. Long-context probe · reasoning display · client-observed TTFT/throughput panel.
 
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 [![GPU](https://img.shields.io/badge/GPU-MI308X%20%7C%20192GB-ED1C24)]()
@@ -21,28 +21,24 @@ This project consumes its OpenAI-compatible API and turns it into an interactive
 ## Architecture
 
 ```text
-Lite mode:
-browser -> Gradio -> OpenAI-compatible /v1 -> vLLM/ROCm -> MI308X
-
-Full mode:
-browser -> Open WebUI -> LiteLLM -> same OpenAI-compatible backend
+browser -> Gradio -> LiteLLM /v1 -> vLLM/ROCm -> MI308X
 ```
 
-- **Lite mode** (default): `python app.py` — a self-contained Gradio app that
-  streams chat, folds reasoning, and runs bounded 32K–475K long-context probes
-  with client-observed TTFT / output tok/s / cached-token accounting.
-- **Full mode** (optional): `docker compose up` — Open WebUI + LiteLLM in front
-  of the same backend, for a richer multi-user chat experience.
+`python app.py` runs the self-contained Gradio application. It streams chat,
+folds reasoning, and runs bounded 32K–475K long-context probes with
+client-observed TTFT, output throughput, and cached-token accounting. LiteLLM
+provides the stable OpenAI-compatible gateway; direct vLLM access remains a
+diagnostic option.
 
 The vLLM backend is **not** containerized here and **not** re-implemented; it is
 the native ROCm stack from the sibling repo.
 
-## Quick start (lite mode)
+## Quick start
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env          # then edit VLLM_BASE_URL / VLLM_API_KEY
+cp .env.example .env          # then edit OPENAI_BASE_URL / OPENAI_API_KEY
 set -a && source .env && set +a
 python app.py                 # http://127.0.0.1:7860
 ```
@@ -50,29 +46,30 @@ python app.py                 # http://127.0.0.1:7860
 With the backend already running (see the sibling repo):
 
 ```bash
-VLLM_BASE_URL=http://127.0.0.1:8000 MODEL_NAME=deepseek-v4-flash python app.py
+OPENAI_BASE_URL=http://127.0.0.1:4000/v1 MODEL_NAME=deepseek-v4-flash python app.py
 ```
 
-## Full mode (Open WebUI + LiteLLM)
+## LiteLLM gateway
 
 ```bash
 cp .env.example .env
 # Set a long random LITELLM_MASTER_KEY and the reachable VLLM_BASE_URL in .env.
 docker compose up -d
-# Open WebUI: http://127.0.0.1:3000   LiteLLM: http://127.0.0.1:4000
+# LiteLLM: http://127.0.0.1:4000/v1
 ```
 
-Compose binds both ports to loopback, keeps Open WebUI authentication enabled,
-and persists its database in a named volume. Put an authenticated reverse proxy
-in front when exposing full mode beyond the local host.
+Point the Gradio app at `OPENAI_BASE_URL=http://127.0.0.1:4000/v1` and use the
+LiteLLM master key as `OPENAI_API_KEY`. Compose binds the gateway to loopback;
+put an authenticated TLS reverse proxy in front before exposing it.
 
 ## Configuration
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `VLLM_BASE_URL` | `http://127.0.0.1:8000` | OpenAI-compatible backend base URL |
-| `VLLM_API_KEY` | *(empty)* | Bearer key when the backend is authenticated |
-| `VLLM_API_KEY_FILE` | *(empty)* | Read the bearer key from a mounted secret file |
+| `OPENAI_BASE_URL` | `http://127.0.0.1:4000/v1` | OpenAI-compatible gateway base URL |
+| `OPENAI_API_KEY` | *(empty)* | Gateway Bearer key; preferred over the key file |
+| `OPENAI_API_KEY_FILE` | *(empty)* | Read the gateway key from a mounted secret file |
+| `VLLM_BASE_URL`, `VLLM_API_KEY`, `VLLM_API_KEY_FILE` | *(empty)* | Backward-compatible direct-vLLM aliases |
 | `MODEL_NAME` | `deepseek-v4-flash` | Model id to request |
 | `GRADIO_SERVER_NAME` | `0.0.0.0` | Gradio bind address |
 | `GRADIO_SERVER_PORT` | `7860` | Gradio bind port |
@@ -88,11 +85,10 @@ in front when exposing full mode beyond the local host.
 app.py                  Minimal application entry point
 deepseek_lab/           configuration, backend client, probes, and Gradio UI
 requirements.txt        runtime deps (gradio + httpx)
-litellm/config.yaml     optional full-mode gateway config (model aliases)
-open-webui/             optional full-mode Open WebUI notes
+litellm/config.yaml     gateway routing config and model aliases
 studio/                 platform-neutral start/health scripts + Studio guide
 docs/                   ARCHITECTURE.md / DEPLOYMENT.md
-docker-compose.yml      optional full-mode stack (Open WebUI + LiteLLM)
+docker-compose.yml      optional LiteLLM gateway container
 tests/                  focused protocol, history, and probe safety tests
 ```
 

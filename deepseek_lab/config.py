@@ -23,25 +23,40 @@ def _read_positive_integer(name: str, default: int) -> int:
     return parsed_value
 
 
-def _read_api_key() -> str:
-    environment_key = os.environ.get("VLLM_API_KEY", "").strip()
-    if environment_key:
-        return environment_key
+def _read_first_environment_value(*names: str) -> tuple[str, str] | None:
+    for name in names:
+        value = os.environ.get(name, "").strip()
+        if value:
+            return name, value
+    return None
 
-    key_file_value = os.environ.get("VLLM_API_KEY_FILE", "").strip()
-    if not key_file_value:
+
+def _read_api_key() -> str:
+    environment_key = _read_first_environment_value(
+        "OPENAI_API_KEY",
+        "VLLM_API_KEY",
+    )
+    if environment_key is not None:
+        return environment_key[1]
+
+    key_file_setting = _read_first_environment_value(
+        "OPENAI_API_KEY_FILE",
+        "VLLM_API_KEY_FILE",
+    )
+    if key_file_setting is None:
         return ""
 
+    key_file_variable, key_file_value = key_file_setting
     key_file_path = Path(key_file_value).expanduser()
     try:
         file_key = key_file_path.read_text(encoding="utf-8").strip()
     except OSError as error:
         raise ValueError(
-            f"Unable to read VLLM_API_KEY_FILE at {key_file_path}"
+            f"Unable to read {key_file_variable} at {key_file_path}"
         ) from error
 
     if not file_key:
-        raise ValueError(f"VLLM_API_KEY_FILE is empty: {key_file_path}")
+        raise ValueError(f"{key_file_variable} is empty: {key_file_path}")
     return file_key
 
 
@@ -51,7 +66,7 @@ def normalize_base_url(base_url: str) -> str:
     parsed_url = urlsplit(normalized_url)
     if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
         raise ValueError(
-            "VLLM_BASE_URL must be an absolute http:// or https:// URL"
+            "OPENAI_BASE_URL must be an absolute http:// or https:// URL"
         )
     return normalized_url
 
@@ -121,9 +136,16 @@ class AppConfig:
         if not model_name:
             raise ValueError("MODEL_NAME must not be empty")
 
+        base_url_setting = _read_first_environment_value(
+            "OPENAI_BASE_URL",
+            "VLLM_BASE_URL",
+        )
+
         return cls(
             base_url=normalize_base_url(
-                os.environ.get("VLLM_BASE_URL", "http://127.0.0.1:8000")
+                base_url_setting[1]
+                if base_url_setting is not None
+                else "http://127.0.0.1:4000/v1"
             ),
             api_key=_read_api_key(),
             model_name=model_name,

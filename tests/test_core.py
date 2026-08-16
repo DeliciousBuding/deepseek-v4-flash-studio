@@ -105,6 +105,35 @@ class ConfigurationTests(unittest.TestCase):
                 config = AppConfig.from_environment()
         self.assertEqual(config.api_key, "file-secret")
 
+    def test_openai_environment_values_take_precedence(self) -> None:
+        with patch.dict(
+            "os.environ",
+            {
+                "OPENAI_BASE_URL": "http://127.0.0.1:4000/v1",
+                "OPENAI_API_KEY": "gateway-secret",
+                "VLLM_BASE_URL": "http://127.0.0.1:8000",
+                "VLLM_API_KEY": "backend-secret",
+            },
+            clear=True,
+        ):
+            config = AppConfig.from_environment()
+
+        self.assertEqual(config.base_url, "http://127.0.0.1:4000/v1")
+        self.assertEqual(config.api_key, "gateway-secret")
+
+    def test_openai_api_key_file_is_supported(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            key_file_path = Path(temporary_directory) / "gateway-key"
+            key_file_path.write_text("gateway-file-secret\n", encoding="utf-8")
+            with patch.dict(
+                "os.environ",
+                {"OPENAI_API_KEY_FILE": str(key_file_path)},
+                clear=True,
+            ):
+                config = AppConfig.from_environment()
+
+        self.assertEqual(config.api_key, "gateway-file-secret")
+
 
 class StreamingParserTests(unittest.TestCase):
     def test_parser_extracts_reasoning_content_and_usage(self) -> None:

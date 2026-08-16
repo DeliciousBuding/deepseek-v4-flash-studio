@@ -462,7 +462,7 @@ def build_demo(config: AppConfig, backend: OpenAIBackend) -> gr.Blocks:
                             "```bash\n"
                             "curl \"$OPENAI_BASE_URL/chat/completions\" \\\n"
                             "  -H \"Content-Type: application/json\" \\\n"
-                            "  -H \"Authorization: Bearer $VLLM_API_KEY\" \\\n"
+                            "  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n"
                             "  -d '{\n"
                             f"    \"model\": \"{config.model_name}\",\n"
                             "    \"messages\": [{\"role\": \"user\", \"content\": \"Hello\"}],\n"
