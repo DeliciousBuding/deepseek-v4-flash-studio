@@ -37,7 +37,7 @@ re-implementing or containerizing the serving stack.
 
 3. **Everything is environment-driven.** The same `app.py` runs against a local
    or remote OpenAI-compatible gateway using `OPENAI_BASE_URL`,
-   `OPENAI_API_KEY`, and `MODEL_NAME`. The former `VLLM_*` variables remain
+   `OPENAI_API_KEY`, and `MODEL_NAME`. The legacy `VLLM_*` variables remain
    backward-compatible aliases for direct backend diagnostics.
 
 4. **No secrets, no bootstrap.** This repo never generates, stores, or commits

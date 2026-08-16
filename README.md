@@ -7,8 +7,8 @@
 A thin Gradio UI and LiteLLM gateway over the OpenAI-compatible vLLM endpoint. Long-context probe · reasoning display · client-observed TTFT/throughput panel.
 
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
-[![GPU](https://img.shields.io/badge/GPU-MI308X%20%7C%20192GB-ED1C24)]()
-[![ROCm](https://img.shields.io/badge/ROCm-7.2-red)]()
+[![GPU](https://img.shields.io/badge/GPU-MI308X%20%7C%20192GB-ED1C24)](https://www.amd.com/en/products/accelerators/instinct)
+[![ROCm](https://img.shields.io/badge/ROCm-7.2-red)](https://rocm.docs.amd.com/)
 
 </div>
 
@@ -55,7 +55,7 @@ OPENAI_BASE_URL=http://127.0.0.1:4000/v1 MODEL_NAME=deepseek-v4-flash python app
 cp .env.example .env
 # Set a long random LITELLM_MASTER_KEY and the reachable VLLM_BASE_URL in .env.
 docker compose up -d
-# LiteLLM: http://127.0.0.1:4000/v1
+# LiteLLM: http://127.0.0.1:4000 (OpenAI-compatible API under /v1)
 ```
 
 Point the Gradio app at `OPENAI_BASE_URL=http://127.0.0.1:4000/v1` and use the
