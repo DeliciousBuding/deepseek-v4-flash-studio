@@ -12,7 +12,7 @@
 model_list:
   - model_name: deepseek-v4-flash
     litellm_params:
-      model: openai/deepseek-v4-flash
+      model: hosted_vllm/deepseek-v4-flash
       api_base: os.environ/VLLM_BASE_URL
       api_key: os.environ/VLLM_API_KEY
       max_tokens: 8192
@@ -21,7 +21,7 @@ model_list:
   # Example alias: same backend, tightened budget for a "fast" chat profile.
   - model_name: deepseek-v4-flash-fast
     litellm_params:
-      model: openai/deepseek-v4-flash
+      model: hosted_vllm/deepseek-v4-flash
       api_base: os.environ/VLLM_BASE_URL
       api_key: os.environ/VLLM_API_KEY
       max_tokens: 2048

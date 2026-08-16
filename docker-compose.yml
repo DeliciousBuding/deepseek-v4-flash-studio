@@ -11,24 +11,33 @@
 services:
   litellm:
     image: ghcr.io/berriai/litellm:main-stable
+    restart: unless-stopped
     volumes:
       - ./litellm/config.yaml:/app/config.yaml:ro
     environment:
       VLLM_BASE_URL: ${VLLM_BASE_URL:-http://host.docker.internal:8000}
       VLLM_API_KEY: ${VLLM_API_KEY:-}
-      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-studio}
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY in .env}
     command: ["--config", "/app/config.yaml", "--port", "4000"]
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
+    restart: unless-stopped
     environment:
       OPENAI_API_BASE_URL: http://litellm:4000/v1
-      OPENAI_API_KEY: ${LITELLM_MASTER_KEY:-sk-studio}
-      WEBUI_AUTH: "false"
+      OPENAI_API_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY in .env}
+      WEBUI_AUTH: ${WEBUI_AUTH:-true}
       DEFAULT_MODELS: deepseek-v4-flash
     ports:
-      - "3000:8080"
+      - "127.0.0.1:3000:8080"
+    volumes:
+      - open-webui-data:/app/backend/data
     depends_on:
       - litellm
+
+volumes:
+  open-webui-data:

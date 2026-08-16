@@ -32,6 +32,7 @@ known_hosts
 tailscaled.state
 .env
 .env.*
+!.env.example
 
 # System
 .DS_Store

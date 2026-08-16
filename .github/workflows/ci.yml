@@ -18,15 +18,21 @@ jobs:
           severity: warning
 
   python:
-    name: Python syntax
+    name: Python tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile app.py
-        run: python -m py_compile app.py
+      - name: Install application dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Compile Python sources
+        run: python -m compileall -q app.py deepseek_lab tests
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -t . -v
+      - name: Build Gradio interface
+        run: python -c "from deepseek_lab.backend import OpenAIBackend; from deepseek_lab.config import AppConfig; from deepseek_lab.ui import build_demo; config = AppConfig.from_environment(); build_demo(config, OpenAIBackend(config))"
       - name: Validate LiteLLM / compose configs
         run: |
           python -m pip install -q pyyaml
