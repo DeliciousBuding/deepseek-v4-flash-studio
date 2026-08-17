@@ -78,6 +78,13 @@ put an authenticated TLS reverse proxy in front before exposing it.
 | `CONTEXT_PROBE_SAFETY_TOKENS` | `4096` | Space reserved for output and chat framing |
 | `INFERENCE_CONCURRENCY_LIMIT` | `1` | Shared Gradio chat/probe concurrency |
 | `QUEUE_MAX_SIZE` | `32` | Maximum queued UI requests |
+| `CHAT_COMPLETIONS_PATH` | `/v1/chat/completions` | Override the chat endpoint path |
+| `MODELS_PATH` | `/v1/models` | Override the models-list endpoint path |
+| `BACKEND_REQUEST_TIMEOUT_SECONDS` | `900` | Per-request timeout to the backend |
+| `BACKEND_CONNECT_TIMEOUT_SECONDS` | `10` | Connect timeout to the backend |
+
+`PORT` and `VLLM_MODEL` are accepted as fallback aliases for `GRADIO_SERVER_PORT`
+and `MODEL_NAME` respectively.
 
 ## Repository layout
 
