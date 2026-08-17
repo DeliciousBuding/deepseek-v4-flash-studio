@@ -2,9 +2,9 @@
 
 <div align="center">
 
-**"MI308X DeepSeek Lab" — the presentation layer for DeepSeek-V4-Flash-0731 on a single AMD Instinct MI308X.**
+**Gradio client and LiteLLM gateway for the DeepSeek-V4-Flash-0731 OpenAI-compatible endpoint on AMD MI308X.**
 
-A thin Gradio UI and LiteLLM gateway over the OpenAI-compatible vLLM endpoint. Long-context probe · reasoning display · client-observed TTFT/throughput panel.
+Consumes the sibling serving repo's OpenAI-compatible API. Streaming chat, bounded 32K–475K long-context probes, reasoning display, and client-observed TTFT / throughput / cached-token accounting.
 
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 [![GPU](https://img.shields.io/badge/GPU-MI308X%20%7C%20192GB-ED1C24)](https://www.amd.com/en/products/accelerators/instinct)
@@ -12,11 +12,11 @@ A thin Gradio UI and LiteLLM gateway over the OpenAI-compatible vLLM endpoint. L
 
 </div>
 
-This repository is the **application shell**, not the inference kernel. The
-actual serving stack — vLLM + ROCm + DeepSeek-V4-Flash + MI308X tuning — lives
-in the sibling repo [`deepseek-v4-flash-mi308x`](https://github.com/DeliciousBuding/deepseek-v4-flash-mi308x).
-This project consumes its OpenAI-compatible API and turns it into an interactive
-"lab" that showcases long context, reasoning, and measured performance.
+This repository is the **application shell**: a Gradio front-end and an
+optional LiteLLM gateway that consume the OpenAI-compatible API served by the
+sibling repo [`deepseek-v4-flash-mi308x`](https://github.com/DeliciousBuding/deepseek-v4-flash-mi308x).
+It does not load model weights or run inference. The actual serving stack
+(vLLM + ROCm + DeepSeek-V4-Flash + MI308X tuning) lives in that sibling repo.
 
 ## Architecture
 
@@ -24,11 +24,11 @@ This project consumes its OpenAI-compatible API and turns it into an interactive
 browser -> Gradio -> LiteLLM /v1 -> vLLM/ROCm -> MI308X
 ```
 
-`python app.py` runs the self-contained Gradio application. It streams chat,
-folds reasoning, and runs bounded 32K–475K long-context probes with
-client-observed TTFT, output throughput, and cached-token accounting. LiteLLM
-provides the stable OpenAI-compatible gateway; direct vLLM access remains a
-diagnostic option.
+`python app.py` runs the Gradio application. It streams chat, folds
+`reasoning_content`, and runs bounded 32K–475K long-context probes that report
+client-observed TTFT, output throughput, and per-request cached-token
+accounting. LiteLLM provides the stable OpenAI-compatible gateway; direct vLLM
+access remains a diagnostic option.
 
 The vLLM backend is **not** containerized here and **not** re-implemented; it is
 the native ROCm stack from the sibling repo.
