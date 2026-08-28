@@ -14,7 +14,7 @@ LiteLLM 网关，并通过平台 secret 注入 API key。
 ### 同机后端
 
 选择 AMD MI308X + ROCm 环境，先按公开仓
-`deepseek-v4-flash-mi308x` 启动 vLLM，再启动 LiteLLM 和本仓 `app.py`。同机
+`mi308x-llm-lab` 的 `deepseek-v4-flash/` 目录启动 vLLM，再启动 LiteLLM 和本仓 `app.py`。同机
 默认网关地址是 `http://127.0.0.1:4000/v1`。推理参数和模型生命周期归
 serving 仓；LiteLLM 统一认证和 OpenAI API；UI 只消费网关。
 
@@ -45,4 +45,4 @@ serving 仓；LiteLLM 统一认证和 OpenAI API；UI 只消费网关。
 - [ ] Chat 能流式返回，推理块折叠正常。
 - [ ] 长上下文探针 32K/128K 能跑完并回显实际 token、TTFT 和缓存 token。
 - [ ] `bash studio/healthcheck.sh` 同时验证 UI 与鉴权后的 `/v1/models`。
-- [ ] README 写清楚如何复现后端（指向 `deepseek-v4-flash-mi308x`）。
+- [ ] README 写清楚如何复现后端（指向 `mi308x-llm-lab` 的 `deepseek-v4-flash/`）。

@@ -473,8 +473,8 @@ def build_demo(config: AppConfig, backend: OpenAIBackend) -> gr.Blocks:
 
         gr.Markdown(
             "Serving and benchmark implementation: "
-            "[`deepseek-v4-flash-mi308x`](https://github.com/DeliciousBuding/"
-            "deepseek-v4-flash-mi308x)."
+            "[`mi308x-llm-lab`](https://github.com/DeliciousBuding/"
+            "mi308x-llm-lab)."
         )
         demo.load(backend.probe_system, outputs=system_info)
 

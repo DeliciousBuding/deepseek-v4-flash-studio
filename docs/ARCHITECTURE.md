@@ -2,7 +2,7 @@
 
 This repository is a strict presentation layer. It converts the
 OpenAI-compatible API served by the sibling repo
-`deepseek-v4-flash-mi308x` into an interactive "lab" experience, without
+`mi308x-llm-lab` (directory `deepseek-v4-flash/`) into an interactive "lab" experience, without
 re-implementing or containerizing the serving stack.
 
 ## Component boundaries
@@ -19,7 +19,7 @@ re-implementing or containerizing the serving stack.
                    │  OpenAI-compatible /v1
                    ▼
 ┌─────────────────────────────────────────────┐
-│ deepseek-v4-flash-mi308x (sibling repo)      │
+│ mi308x-llm-lab/deepseek-v4-flash (sibling)   │
 │  vLLM + ROCm + DeepSeek-V4-Flash + MI308X    │
 │  owns serving config, patches, benchmarks    │
 └─────────────────────────────────────────────┘

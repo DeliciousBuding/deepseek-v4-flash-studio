@@ -14,7 +14,7 @@ Consumes the sibling serving repo's OpenAI-compatible API. Streaming chat, bound
 
 This repository is the **application shell**: a Gradio front-end and an
 optional LiteLLM gateway that consume the OpenAI-compatible API served by the
-sibling repo [`deepseek-v4-flash-mi308x`](https://github.com/DeliciousBuding/deepseek-v4-flash-mi308x).
+sibling repo [`mi308x-llm-lab`](https://github.com/DeliciousBuding/mi308x-llm-lab) (directory `deepseek-v4-flash/`).
 It does not load model weights or run inference. The actual serving stack
 (vLLM + ROCm + DeepSeek-V4-Flash + MI308X tuning) lives in that sibling repo.
 
@@ -113,5 +113,5 @@ environment variables.
 
 This repo intentionally does **not** own: the vLLM/ROCm serving stack, model
 weights, patch overlays, GPU tuning tables, SSH/bootstrap, or secret persistence.
-Those belong to [`deepseek-v4-flash-mi308x`](https://github.com/DeliciousBuding/deepseek-v4-flash-mi308x)
+Those belong to [`mi308x-llm-lab`](https://github.com/DeliciousBuding/mi308x-llm-lab) (directory `deepseek-v4-flash/`)
 (public) and a private infrastructure layer.

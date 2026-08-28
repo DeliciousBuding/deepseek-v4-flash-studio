@@ -5,7 +5,7 @@ The application and gateway can run together or on separate hosts.
 ## 1. Local Gradio application
 
 Prereqs: a running OpenAI-compatible backend (see the sibling repo
-`deepseek-v4-flash-mi308x` for how to start vLLM on MI308X).
+`mi308x-llm-lab`, directory `deepseek-v4-flash/`, for how to start vLLM on MI308X).
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
@@ -24,7 +24,7 @@ The application supports two explicit topologies:
 - **Remote gateway:** deploy this UI on a CPU application and point
   `OPENAI_BASE_URL` at an authenticated, reachable LiteLLM service.
 - **Co-located backend:** select an AMD MI308X/ROCm application, start the
-  sibling `deepseek-v4-flash-mi308x` serving recipe and LiteLLM first, then
+  sibling `mi308x-llm-lab` (`deepseek-v4-flash/` directory) serving recipe and LiteLLM first, then
   start this UI against `http://127.0.0.1:4000/v1`.
 
 The default `python app.py` command starts only the UI; it never downloads model
