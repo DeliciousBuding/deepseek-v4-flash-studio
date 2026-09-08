@@ -4,6 +4,10 @@
 # ModelScope Studio usually runs `python app.py` directly and manages its own
 # dependency install; this wrapper is a convenience for manual/VPS runs and
 # documents the exact launch path.
+#
+# This deliberately stays on pip + requirements.txt: the platform runtime is not
+# guaranteed to provide uv. Local development and CI use uv (pyproject.toml +
+# uv.lock), and CI fails if requirements.txt drifts from pyproject.toml.
 set -euo pipefail
 
 PROJECT_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"

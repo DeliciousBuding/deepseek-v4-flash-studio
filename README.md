@@ -36,17 +36,19 @@ the native ROCm stack from the sibling repo.
 ## Quick start
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+uv sync                       # creates .venv from uv.lock (Python >= 3.12)
 cp .env.example .env          # then edit OPENAI_BASE_URL / OPENAI_API_KEY
 set -a && source .env && set +a
-python app.py                 # http://127.0.0.1:7860
+uv run python app.py          # http://127.0.0.1:7860
 ```
+
+Without uv, `python -m venv .venv && pip install -r requirements.txt` works too:
+`requirements.txt` stays supported because ModelScope Studio installs from it.
 
 With the backend already running (see the sibling repo):
 
 ```bash
-OPENAI_BASE_URL=http://127.0.0.1:4000/v1 MODEL_NAME=deepseek-v4-flash python app.py
+OPENAI_BASE_URL=http://127.0.0.1:4000/v1 MODEL_NAME=deepseek-v4-flash uv run python app.py
 ```
 
 ## LiteLLM gateway
@@ -91,7 +93,9 @@ and `MODEL_NAME` respectively.
 ```text
 app.py                  Minimal application entry point
 deepseek_lab/           configuration, backend client, probes, and Gradio UI
-requirements.txt        runtime deps (gradio + httpx)
+pyproject.toml          dependency source of truth for uv (dev + CI)
+uv.lock                 resolved lockfile used by `uv sync`
+requirements.txt        Studio install contract; mirrors pyproject dependencies
 litellm/config.yaml     gateway routing config and model aliases
 studio/                 platform-neutral start/health scripts + Studio guide
 docs/                   ARCHITECTURE.md / DEPLOYMENT.md
@@ -102,7 +106,8 @@ tests/                  focused protocol, history, and probe safety tests
 ## ModelScope 创空间 (Studio)
 
 The UI can be deployed to ModelScope Studio with entry file `app.py` and
-dependencies from `requirements.txt`. The UI itself does not load weights or
+dependencies from `requirements.txt` (the platform installs with pip, so that
+file stays authoritative for Studio and mirrors `pyproject.toml`). The UI itself does not load weights or
 consume a GPU: it needs an already-running backend. Use a CPU application when
 the backend is remote, or start the sibling serving recipe first when both
 processes are intentionally co-located on an MI308X instance. See

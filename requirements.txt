@@ -1,3 +1,7 @@
+# ModelScope Studio install contract — the platform runs `pip install -r requirements.txt`.
+# Local development uses uv (pyproject.toml + uv.lock). Keep the runtime ranges below
+# identical to [project].dependencies in pyproject.toml; CI fails if the two drift.
+#
 # Runtime deps for the Gradio UI (app.py). Gradio pulls its own web stack.
 gradio>=5.50,<6
 httpx>=0.27,<1

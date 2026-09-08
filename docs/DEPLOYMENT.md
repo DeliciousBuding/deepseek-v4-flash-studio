@@ -8,12 +8,14 @@ Prereqs: a running OpenAI-compatible backend (see the sibling repo
 `mi308x-llm-lab`, directory `deepseek-v4-flash/`, for how to start vLLM on MI308X).
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+uv sync                                   # creates .venv from uv.lock
 cp .env.example .env && vim .env          # set OPENAI_BASE_URL, OPENAI_API_KEY
 set -a && source .env && set +a
-python app.py
+uv run python app.py
 ```
+
+On a host without uv, `python -m venv .venv && pip install -r requirements.txt`
+is equivalent; `requirements.txt` mirrors the `pyproject.toml` dependencies.
 
 Open `http://127.0.0.1:7860`.
 

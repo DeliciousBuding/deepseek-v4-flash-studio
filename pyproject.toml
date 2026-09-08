@@ -1,0 +1,26 @@
+[project]
+name = "deepseek-v4-flash-studio"
+version = "0.1.0"
+description = "Gradio UI and LiteLLM gateway config for the DeepSeek-V4-Flash OpenAI-compatible endpoint"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.12"
+
+# Runtime dependencies. requirements.txt mirrors this list because ModelScope
+# Studio installs from requirements.txt with pip; CI fails if the two drift.
+dependencies = [
+    "gradio>=5.50,<6",
+    "httpx>=0.27,<1",
+    "python-dotenv>=1.0,<2",
+]
+
+[dependency-groups]
+# pyyaml is only used by CI to validate litellm/config.yaml and docker-compose.yml.
+dev = [
+    "pyyaml>=6,<7",
+]
+
+[tool.uv]
+# This repository is an application, not an installable package: uv syncs the
+# dependencies into .venv without building or installing the project itself.
+package = false
